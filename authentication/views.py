@@ -10,6 +10,9 @@ from .models import MyUser
 from .serializers import MyUserSerializerGET, MyUserSerializerPOST, MyUserSerializerPUT
 # Create your views here.
 
+
+# Crud Users
+
 class ApiGetUserView(APIView):
 
     def get(self, request, format = None, users = None):
@@ -114,3 +117,40 @@ class ApiUserDeleteView(APIView):
         user_pk = get_user_pk.get_user(pk=pk)
         user_pk.delete()
         return Response({"message":"User eliminated correctly"},status=status.HTTP_200_OK )
+    
+
+# Login Users
+
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate,login
+from django.core.exceptions import ObjectDoesNotExist
+
+
+class ApiUserLoginView(APIView):
+
+    def get(self, format = None):
+        format = {
+            "username":"data(required)",
+            "password":"data(required)",
+        }
+        return Response(format, status=status.HTTP_200_OK)
+
+    def post(self, request, format = None):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+
+        user = None
+        if username or password:
+            try:
+                user = MyUser.objects.get(username=username)
+            except ObjectDoesNotExist:
+                pass
+        if user is None:
+            user = authenticate(username=username, password=password)
+        if user is not None:
+            token,_ = Token.objects.get_or_create(user=user)
+            login(request, user=user)
+            return Response({"Token":token.key}, status=status.HTTP_200_OK)
+        return Response({'error':"Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+    
