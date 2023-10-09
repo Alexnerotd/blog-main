@@ -100,3 +100,17 @@ class ApiPutUserView(APIView):
                 return Response({"message":"User not found"}, status=status.HTTP_404_NOT_FOUND)
         except MyUser.DoesNotExist:
             raise("El usuario no existe")
+        
+class ApiUserDeleteView(APIView):
+
+
+    def get(self, request, pk, format = None):
+        user_pk = get_user_pk.get_user(pk=pk)
+        user_serializer = MyUserSerializerGET(user_pk)
+        return Response(user_serializer.data, status=status.HTTP_200_OK)
+
+
+    def post(self, request, pk, format = None):
+        user_pk = get_user_pk.get_user(pk=pk)
+        user_pk.delete()
+        return Response({"message":"User eliminated correctly"},status=status.HTTP_200_OK )
