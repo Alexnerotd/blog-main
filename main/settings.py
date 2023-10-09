@@ -35,6 +35,7 @@ BASE_APPS = [
 # Apps of thirds
 THIRD_APPS = [
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     'drf_yasg',
 ]
@@ -58,6 +59,13 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES':[
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}
+
 
 # Add url that you want to use this api
 CORS_ALLOWED_ORIGINS = [
