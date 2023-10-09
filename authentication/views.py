@@ -7,7 +7,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 
 from .models import MyUser
-from .serializers import MyUserSerializerGET, MyUserSerializerPOST
+from .serializers import MyUserSerializerGET, MyUserSerializerPOST, MyUserSerializerPUT
 # Create your views here.
 
 class ApiGetUserView(APIView):
@@ -32,7 +32,7 @@ class ApiGetOneUserView(APIView):
             else:
                 return None
         except MyUser.DoesNotExist:
-            raise("El usuario no existe")
+           raise Http404
             
         
 
@@ -69,6 +69,34 @@ class ApiPostUserView(APIView):
         except ValidationError:
             raise("Error con el user_serializer al ingresar la data")
         
+get_user_pk = ApiGetOneUserView()
 
+class ApiPutUserView(APIView):
 
+    def get(self, request, pk = None, format = None):
+        user_pk = get_user_pk.get_user(pk=pk)
+        user_serializer = MyUserSerializerPUT(user_pk)
+
+        try:
+            if pk is not None:
+                return Response(user_serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response({"message":"User not found"}, status=status.HTTP_404_NOT_FOUND)
+        except MyUser.DoesNotExist:
+            raise("Usuario no encontrado")
     
+    def put(self, request, pk = None, format = None):
+
+        user_pk = get_user_pk.get_user(pk=pk)
+        try:
+            user_serializer = MyUserSerializerPUT(user_pk, data=self.request.data, partial = True)
+            if pk is not None:
+                if user_serializer.is_valid():
+                    user_serializer.save()
+                    return Response({"message":"User has been edited correctly"}, status=status.HTTP_200_OK)
+                else:
+                    return Response({"message":"The data entered is incorrect"}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({"message":"User not found"}, status=status.HTTP_404_NOT_FOUND)
+        except MyUser.DoesNotExist:
+            raise("El usuario no existe")

@@ -24,3 +24,9 @@ class MyUserSerializerPOST(ModelSerializer):
         user.save()
         return user
     
+class MyUserSerializerPUT(ModelSerializer):
+
+    class Meta:
+        model = MyUser
+        fields = ['username', 'email', 'password', 'name']
+    
