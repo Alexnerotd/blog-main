@@ -7,7 +7,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.views import APIView
 
 from .models import MyUser
-from .serializers import MyUserSerializerGET
+from .serializers import MyUserSerializerGET, MyUserSerializerPOST
 # Create your views here.
 
 class ApiGetUserView(APIView):
@@ -44,6 +44,31 @@ class ApiGetOneUserView(APIView):
             return Response(user_serializer.data, status=status.HTTP_200_OK)
         else:
             return Response({"message":"User not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+
+class ApiPostUserView(APIView):
+
+    def get(self, request, format = None):
+        format = {
+            "username":"data(required)",
+            "email":"data(required)",
+            "password":"data(required)",
+            "name":"data(not required)",
+        }
+        return Response(format, status=status.HTTP_200_OK)
+    
+    def post(self, request, format = None):
+        
+        user_serializer = MyUserSerializerPOST(data=self.request.data)
+        try:
+            if user_serializer.is_valid():
+                user_serializer.save()
+                return Response({"message":"Usuario creado correctamente"}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({"message":"Los daros ingresados no son validos por favor revisalos"})
+        except ValidationError:
+            raise("Error con el user_serializer al ingresar la data")
+        
 
 
     
